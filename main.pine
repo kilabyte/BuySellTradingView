@@ -1,5 +1,6 @@
 //@version=4
-study("Kilabyte V1", overlay = true)
+strategy("Kilabyte V1", overlay = true, initial_capital=10000, default_qty_type=strategy.cash, default_qty_value=10000,commission_type=strategy.commission.cash_per_order, 
+     commission_value=7.50)
 
 Periods = input(title="ATR Period", type=input.integer, defval=10)
 src = input(hl2, title="Source")
@@ -20,10 +21,14 @@ trend := nz(trend[1], trend)
 trend := trend == -1 and close > dn1 ? 1 : trend == 1 and close < up1 ? -1 : trend
 upPlot = plot(trend == 1 ? up : na, title="Up Trend", style=plot.style_linebr, linewidth=2, color=color.green)
 buySignal = trend == 1 and trend[1] == -1
+if (buySignal)
+    strategy.entry(id="B", long=true)
+
 plotshape(buySignal ? up : na, title="UpTrend Begins", location=location.absolute, style=shape.circle, size=size.tiny, color=color.green, transp=0)
 plotshape(buySignal and showsignals ? up : na, title="Buy", text="Buy", location=location.absolute, style=shape.labelup, size=size.tiny, color=color.green, textcolor=color.white, transp=0)
 dnPlot = plot(trend == 1 ? na : dn, title="Down Trend", style=plot.style_linebr, linewidth=2, color=color.red)
 sellSignal = trend == -1 and trend[1] == 1
+strategy.close(id="B", when=sellSignal)
 plotshape(sellSignal ? dn : na, title="DownTrend Begins", location=location.absolute, style=shape.circle, size=size.tiny, color=color.red, transp=0)
 plotshape(sellSignal and showsignals ? dn : na, title="Sell", text="Sell", location=location.absolute, style=shape.labeldown, size=size.tiny, color=color.red, textcolor=color.white, transp=0)
 mPlot = plot(ohlc4, title="", style=plot.style_circles, linewidth=0)
